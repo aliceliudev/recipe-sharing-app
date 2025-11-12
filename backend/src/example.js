@@ -1,26 +1,27 @@
 import { initDatabase } from "./db/init.js";
-import { Post } from "./db/models/post.js";
+import { Recipe } from "./db/models/recipe.js";
 import dotenv from "dotenv";
 dotenv.config();
 
 async function main() {
   await initDatabase(); // wait for the database to initialize
-  const post = new Post({
-    title: "Hello from Alice Liu",
-    author: "Alice Liu",
-    content: "This is a sample post content.",
-    tags: ["sample", "post", "alice"],
+  const recipe = new Recipe({
+    title: "Alice's Famous Chocolate Cake",
+    author: "Alice Liu", 
+    content: "This is a delicious chocolate cake recipe.",
+    ingredients: ["2 cups flour", "1 cup sugar", "3 eggs", "1/2 cup cocoa powder"],
+    tags: ["sample", "recipe", "alice", "dessert"],
   });
 
-  const createdPost = await post.save();
+  const createdRecipe = await recipe.save();
 
-  await Post.findByIdAndUpdate(createdPost._id, {
-    $set: { content: "This is the updated content of the sample post." },
+  await Recipe.findByIdAndUpdate(createdRecipe._id, {
+    $set: { content: "This is the updated description of the sample recipe." },
     timestamps: true,
   });
 
-  const posts = await Post.find({});
-  console.log("All Posts:", posts);
+  const recipes = await Recipe.find({});
+  console.log("All Recipes:", recipes);
 }
 
 main().catch(console.error);

@@ -3,6 +3,12 @@ import jwt from "jsonwebtoken";
 import { User } from "../db/models/user.js";
 
 export async function createUser({ username, password }) {
+  // Check if user already exists
+  const existingUser = await User.findOne({ username });
+  if (existingUser) {
+    throw new Error("USER_ALREADY_EXISTS");
+  }
+  
   const hashedPassword = await bcrypt.hash(password, 10);
   const user = new User({ username, password: hashedPassword });
   return await user.save();
@@ -21,11 +27,11 @@ export async function getUserInfoById(userId) {
 export async function loginUser({ username, password }) {
   const user = await User.findOne({ username });
   if (!user) {
-    throw new Error("invalid username!");
+    throw new Error("USER_NOT_FOUND");
   }
   const isPasswordCorrect = await bcrypt.compare(password, user.password);
   if (!isPasswordCorrect) {
-    throw new Error("invalid password!");
+    throw new Error("INVALID_PASSWORD");
   }
   const token = jwt.sign({ sub: user._id }, process.env.JWT_SECRET, {
     expiresIn: "24h",

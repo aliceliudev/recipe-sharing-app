@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 export async function initDatabase() {
   // Use environment variable or fallback to localhost
   const DATABASE_URL =
-    process.env.DATABASE_URL || "mongodb://localhost:27017/blog";
+    process.env.DATABASE_URL || "mongodb://localhost:27017/recipe-sharing";
 
   try {
     const connection = await mongoose.connect(DATABASE_URL);
