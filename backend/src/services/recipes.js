@@ -24,7 +24,7 @@ export async function listRecipesByAuthor(authorUsername, options) {
 }
 
 export async function listRecipesByTag(tags, options) {
-  return await listRecipes({ tags }, options);
+  return await listRecipes({ tags: { $in: tags } }, options);
 }
 
 export async function getRecipeById(recipeId) {

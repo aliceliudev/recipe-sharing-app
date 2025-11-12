@@ -8,7 +8,8 @@
     "build": "vite build",
     "lint": "eslint src",
     "preview": "vite preview",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.5",
