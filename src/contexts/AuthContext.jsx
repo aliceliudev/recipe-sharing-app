@@ -24,11 +24,19 @@ function decodeToken(token) {
 }
 
 export const AuthContextProvider = ({ children }) => {
-  const [token, setTokenState] = useState(null);
+  const [token, setTokenState] = useState(() => {
+    // Initialize token from localStorage
+    return localStorage.getItem('authToken') || null;
+  });
   const [user, setUser] = useState(null);
 
   const setToken = (newToken) => {
     setTokenState(newToken);
+    if (newToken) {
+      localStorage.setItem('authToken', newToken);
+    } else {
+      localStorage.removeItem('authToken');
+    }
     const decodedUser = decodeToken(newToken);
     setUser(decodedUser);
   };
