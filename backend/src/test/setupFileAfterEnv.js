@@ -4,10 +4,8 @@ import { initDatabase } from "../db/init.js";
 
 beforeAll(async () => {
   try {
-    // Only set fallback if no URI is provided by globalSetup
-    if (!process.env.MONGODB_URI && !process.env.DATABASE_URL) {
-      process.env.MONGODB_URI = "mongodb://localhost:27017/recipe-sharing-test";
-    }
+    // The MongoDB URI should already be set by globalSetup.js
+    console.log('Using MongoDB URI from globalSetup:', process.env.MONGODB_URI || process.env.DATABASE_URL);
     await initDatabase();
     console.log('Test database connected successfully');
   } catch (error) {
