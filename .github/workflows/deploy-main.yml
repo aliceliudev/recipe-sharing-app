@@ -49,6 +49,17 @@ jobs:
         with:
           credentials_json: ${{ secrets.GOOGLECLOUD_CREDENTIALS }}
           
+      - name: Debug secrets (without exposing values)
+        run: |
+          echo "Checking if secrets are set..."
+          echo "DOCKERHUB_USERNAME length: ${#DOCKERHUB_USERNAME}"
+          echo "MONGODB_URI length: ${#MONGODB_URI}"
+          echo "JWT_SECRET length: ${#JWT_SECRET}"
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          
       - name: Build and push backend image
         uses: docker/build-push-action@v5
         with:
@@ -64,14 +75,13 @@ jobs:
           service: recipe-backend
           image: ${{ secrets.DOCKERHUB_USERNAME }}/recipe-backend:${{ github.sha }}
           region: ${{ secrets.GOOGLECLOUD_REGION }}
-          env_vars: |
-            DATABASE_URL=${{ secrets.MONGODB_URI }}
-            MONGODB_URI=${{ secrets.MONGODB_URI }}
-            JWT_SECRET=${{ secrets.JWT_SECRET }}
-            NODE_ENV=production
+          env_vars: DATABASE_URL=${{ secrets.MONGODB_URI }},MONGODB_URI=${{ secrets.MONGODB_URI }},JWT_SECRET=${{ secrets.JWT_SECRET }},NODE_ENV=production
           flags: |
             --allow-unauthenticated
             --port=8080
+            --timeout=300
+            --memory=512Mi
+            --cpu=1
             
       - name: Build and push frontend image
         uses: docker/build-push-action@v5
