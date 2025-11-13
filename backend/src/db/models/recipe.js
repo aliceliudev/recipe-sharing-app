@@ -1,5 +1,6 @@
 import mongoose, { Schema } from "mongoose";
-const postSchema = new Schema(
+
+const recipeSchema = new Schema(
   {
     title: { type: String, required: true },
     content: { type: String },
@@ -10,4 +11,5 @@ const postSchema = new Schema(
   },
   { timestamps: true },
 );
-export const Post = mongoose.model("Post", postSchema);
+
+export const Recipe = mongoose.model("recipe", recipeSchema);

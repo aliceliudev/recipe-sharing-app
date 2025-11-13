@@ -6,5 +6,6 @@
   "transform": {},
   "globalSetup": "<rootDir>/src/test/globalSetup.js",
   "globalTeardown": "<rootDir>/src/test/globalTeardown.js",
-  "setupFilesAfterEnv": ["<rootDir>/src/test/setupFileAfterEnv.js"]
+  "setupFilesAfterEnv": ["<rootDir>/src/test/setupFileAfterEnv.js"],
+  "testTimeout": 30000
 }

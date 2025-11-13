@@ -4,16 +4,27 @@ export const signup = async ({ username, password }) => {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username, password }),
   });
-  if (!res.ok) throw new Error("failed to sign up");
+  
+  if (!res.ok) {
+    const errorData = await res.json();
+    throw new Error(errorData.error || "Failed to sign up");
+  }
+  
   return await res.json();
 };
+
 export const login = async ({ username, password }) => {
   const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/user/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username, password }),
   });
-  if (!res.ok) throw new Error("failed to login");
+  
+  if (!res.ok) {
+    const errorData = await res.json();
+    throw new Error(errorData.error || "Failed to login");
+  }
+  
   return await res.json();
 };
 

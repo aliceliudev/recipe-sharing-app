@@ -7,5 +7,8 @@ export default async function globalSetup() {
     },
   });
   global.__MONGOINSTANCE = instance;
-  process.env.DATABASE_URL = instance.getUri();
+  const uri = instance.getUri();
+  process.env.DATABASE_URL = uri;
+  process.env.MONGODB_URI = uri;
+  console.log('Test MongoDB URI:', uri);
 }
