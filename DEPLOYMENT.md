@@ -60,8 +60,11 @@ gcloud iam service-accounts keys create key.json \
 Go to your GitHub repository → Settings → Secrets and variables → Actions, and add the following secrets:
 
 ### Required Secrets:
-- **`GCP_PROJECT_ID`**: Your Google Cloud project ID
-- **`GCP_SA_KEY`**: Contents of the `key.json` file (paste the entire JSON)
+- **`DOCKERHUB_USERNAME`**: Your Docker Hub username (e.g., `alicemf`)
+- **`DOCKERHUB_TOKEN`**: Your Docker Hub access token
+- **`GOOGLECLOUD_CREDENTIALS`**: Contents of the `key.json` file (paste the entire JSON)
+- **`GOOGLECLOUD_REGION`**: Google Cloud region (e.g., `us-central1`)
+- **`GOOGLECLOUD_SERVICE_ACCOUNT`**: Service account email (e.g., `github-actions-sa@PROJECT_ID.iam.gserviceaccount.com`)
 - **`MONGODB_URI`**: Your MongoDB Atlas connection string
   ```
   mongodb+srv://joyce-db:Admin111@cluster0.bqds8ko.mongodb.net/recipe-sharing
@@ -166,10 +169,20 @@ gcloud run deploy recipe-backend --source=./backend --region=us-central1
 
 The CI/CD pipeline includes:
 
-1. **Testing**: Runs frontend and backend tests
-2. **Backend Deployment**: Builds and deploys backend to Cloud Run
-3. **Frontend Deployment**: Builds frontend with correct backend URL and deploys
-4. **Artifact Storage**: Stores Docker images in Artifact Registry
-5. **Automatic Scaling**: Configures Cloud Run auto-scaling
+1. **Frontend CI** (`frontend-ci.yml`): Runs linting and builds frontend
+2. **Backend CI** (`backend-ci.yml`): Runs linting and tests backend with in-memory MongoDB
+3. **Deployment** (`deploy-main.yml`): 
+   - Tests backend with in-memory MongoDB
+   - Builds and deploys backend to Google Cloud Run
+   - Builds frontend with correct backend URL and deploys to Cloud Run
+   - Uses Docker Hub for image storage
+   - Automatic dependency management - frontend gets backend URL automatically
+
+### Current CI/CD Architecture:
+- **Image Registry**: Docker Hub (alicemf/recipe-backend, alicemf/recipe-frontend)
+- **Deployment Platform**: Google Cloud Run
+- **Database**: MongoDB Atlas (for production)
+- **Testing**: In-memory MongoDB for CI/CD tests
+- **Secret Management**: GitHub Secrets
 
 The entire deployment process is automated and will complete in approximately 5-10 minutes.
