@@ -80,8 +80,7 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/recipe-frontend:${{ github.sha }}
-          build-args: |
-            VITE_BACKEND_URL=${{ steps.deploy-backend.outputs.url }}/api/v1
+          build-args: VITE_BACKEND_URL=${{ steps.deploy-backend.outputs.url }}/api/v1
           
       - id: deploy-frontend
         name: Deploy frontend
