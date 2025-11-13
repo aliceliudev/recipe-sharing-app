@@ -7,6 +7,9 @@ ARG VITE_BACKEND_URL="https://fictional-space-garbanzo-p66j5w76p7ghrq7v-3001.app
 # Set environment variable for Vite build
 ENV VITE_BACKEND_URL=${VITE_BACKEND_URL}
 
+# Debug: Print the backend URL being used
+RUN echo "Building frontend with VITE_BACKEND_URL=${VITE_BACKEND_URL}"
+
 # Install dependencies needed for native modules
 RUN apk add --no-cache python3 make g++
 
