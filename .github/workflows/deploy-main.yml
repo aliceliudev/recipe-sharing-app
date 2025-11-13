@@ -56,7 +56,7 @@ jobs:
           context: ./backend
           file: ./backend/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHgit UB_USERNAME }}/recipe-backend:${{ github.sha }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/recipe-backend:${{ github.sha }}
           
       - id: deploy-backend
         name: Deploy backend
