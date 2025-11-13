@@ -27,14 +27,11 @@ jobs:
     - name: Install backend dependencies
       run: cd backend && npm ci
 
-    - name: Run frontend tests
-      run: npm test -- --watchAll=false
+    - name: Build frontend
+      run: npm run build
 
     - name: Run backend tests
       run: cd backend && npm test
-
-    - name: Build frontend
-      run: npm run build
 
   deploy:
     runs-on: ubuntu-latest

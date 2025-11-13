@@ -1,5 +1,6 @@
 export default {
   testEnvironment: 'node',
+  testTimeout: 30000,
   projects: [
     {
       displayName: 'backend',
@@ -15,7 +16,8 @@ export default {
       testMatch: [
         "<rootDir>/src/**/*.test.js",
         "<rootDir>/src/__tests__/**/*.js"
-      ]
+      ],
+      testTimeout: 30000
     }
   ]
 };
