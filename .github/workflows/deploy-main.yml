@@ -51,18 +51,6 @@ jobs:
         with:
           credentials_json: ${{ secrets.GOOGLECLOUD_CREDENTIALS }}
           
-      - name: Verify secrets exist
-        run: |
-          if [ -z "${{ secrets.MONGODB_URI }}" ]; then
-            echo "❌ MONGODB_URI is empty!"
-            exit 1
-          fi
-          if [ -z "${{ secrets.JWT_SECRET }}" ]; then
-            echo "❌ JWT_SECRET is empty!"
-            exit 1
-          fi
-          echo "✅ All secrets are available"
-          
       - name: Build and push backend image
         uses: docker/build-push-action@v5
         with:
