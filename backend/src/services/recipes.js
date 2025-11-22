@@ -1,3 +1,33 @@
+// Like a recipe
+export async function likeRecipe(userId, recipeId) {
+  const recipe = await Recipe.findById(recipeId);
+  if (!recipe) return null;
+  if (!recipe.likedBy.includes(userId)) {
+    recipe.likedBy.push(userId);
+    await recipe.save();
+  }
+  return recipe;
+}
+
+// Unlike a recipe
+export async function unlikeRecipe(userId, recipeId) {
+  const recipe = await Recipe.findById(recipeId);
+  if (!recipe) return null;
+  recipe.likedBy = recipe.likedBy.filter(
+    (id) => id.toString() !== userId.toString()
+  );
+  await recipe.save();
+  return recipe;
+}
+
+// Get top recipes by like count (popularity)
+export async function getTopRecipes(limit = 10) {
+  return await Recipe.aggregate([
+    { $addFields: { likeCount: { $size: "$likedBy" } } },
+    { $sort: { likeCount: -1, createdAt: -1 } },
+    { $limit: limit },
+  ]);
+}
 import { Recipe } from "../db/models/recipe.js";
 import { User } from "../db/models/user.js";
 
