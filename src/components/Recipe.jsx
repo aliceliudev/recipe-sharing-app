@@ -3,9 +3,9 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { User } from "./User.jsx";
 import { useAuth } from "../contexts/AuthContext.jsx";
-import { updateRecipe, deleteRecipe } from "../api/recipes.js";
+import { updateRecipe, deleteRecipe, likeRecipe, unlikeRecipe } from "../api/recipes.js";
 
-export function Recipe({ _id, title, content, author: userId, ingredients, imageUrl, createdAt }) {
+export function Recipe({ _id, title, content, author: userId, ingredients, imageUrl, createdAt, likedBy = [] }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(title);
   const [editContent, setEditContent] = useState(content || "");
@@ -13,18 +13,33 @@ export function Recipe({ _id, title, content, author: userId, ingredients, image
   const [editImageUrl, setEditImageUrl] = useState(imageUrl || "");
   const [token, user] = useAuth();
   const queryClient = useQueryClient();
-  
+  const [likePending, setLikePending] = useState(false);
+
+  // Defensive: ensure user and likedBy are defined before use
+  const isLiked = user && Array.isArray(likedBy) && likedBy.includes(user.sub);
+  const likeCount = Array.isArray(likedBy) ? likedBy.length : 0;
+
+  const handleLike = async () => {
+    if (!token) return;
+    setLikePending(true);
+    try {
+      if (isLiked) {
+        await unlikeRecipe(token, _id);
+      } else {
+        await likeRecipe(token, _id);
+      }
+      queryClient.invalidateQueries(["recipes"]);
+    } catch (e) {
+      alert("Failed to update like");
+    } finally {
+      setLikePending(false);
+    }
+  };
+
   // Check if current user is the author
   const isAuthor = user && user.sub === userId;
-  
   // Debug logging (remove this later)
-  console.log('Recipe debug:', {
-    userId,
-    user,
-    userSub: user?.sub,
-    isAuthor,
-    token: token ? 'present' : 'missing'
-  });
+  // console.log('Recipe debug:', { userId, user, userSub: user?.sub, isAuthor, token: token ? 'present' : 'missing' });
 
   const updateRecipeMutation = useMutation({
     mutationFn: () => updateRecipe(token, _id, {
@@ -148,6 +163,47 @@ export function Recipe({ _id, title, content, author: userId, ingredients, image
       borderRadius: '8px',
       backgroundColor: '#f9f9f9'
     }}>
+            {/* Like button and count */}
+            <div style={{ marginBottom: '10px', display: 'flex', alignItems: 'center' }}>
+              <button
+                onClick={handleLike}
+                disabled={!token || likePending}
+                style={{
+                  marginRight: '10px',
+                  padding: '6px 14px',
+                  backgroundColor: 'transparent',
+                  color: 'inherit',
+                  border: 'none',
+                  borderRadius: '50%',
+                  cursor: token && !likePending ? 'pointer' : 'not-allowed',
+                  fontWeight: 'bold',
+                  fontSize: '1.6em',
+                  lineHeight: 1,
+                  transition: 'color 0.2s',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+                aria-label={isLiked ? 'Unlike' : 'Like'}
+              >
+                <span style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  transition: 'color 0.2s',
+                }}>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill={isLiked ? '#e53935' : '#9CA3AF'}
+                  >
+                    <path d="M12 21.35l-1.45-1.32C6.1 15.36 3 12.55 3 9.25 3 7.02 4.79 5.2 7 5.2c1.41 0 2.8.7 3.65 1.82.85-1.12 2.24-1.82 3.65-1.82 2.21 0 4 1.82 4 4.05 0 3.3-3.1 6.11-7.55 10.78L12 21.35z" />
+                  </svg>
+                </span>
+              </button>
+              <span style={{ fontSize: '1em', color: isLiked ? '#e53935' : '#9CA3AF', fontWeight: isLiked ? 'bold' : 'normal' }}>{likeCount} {likeCount === 1 ? 'like' : 'likes'}</span>
+            </div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '15px' }}>
         <h3 style={{ margin: 0 }}>{title}</h3>
         {true && (
@@ -264,4 +320,5 @@ Recipe.propTypes = {
   ingredients: PropTypes.arrayOf(PropTypes.string),
   imageUrl: PropTypes.string,
   createdAt: PropTypes.string,
+  likedBy: PropTypes.arrayOf(PropTypes.string),
 };

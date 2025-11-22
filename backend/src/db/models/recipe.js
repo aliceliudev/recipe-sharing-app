@@ -8,6 +8,7 @@ const recipeSchema = new Schema(
     imageUrl: { type: String },
     author: { type: Schema.Types.ObjectId, ref: "user", required: true },
     tags: [{ type: String }],
+    likedBy: [{ type: Schema.Types.ObjectId, ref: "user" }], 
   },
   { timestamps: true },
 );
