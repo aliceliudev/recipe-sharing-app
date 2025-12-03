@@ -16,4 +16,15 @@ app.get("/", (req, res) => {
   res.send("Hello from Express!");
 });
 
+// Store Socket.io instance for broadcasting
+let io;
+
+export function setIO(socketIO) {
+  io = socketIO;
+}
+
+export function getIO() {
+  return io;
+}
+
 export { app };

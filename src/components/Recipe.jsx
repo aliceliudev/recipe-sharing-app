@@ -5,7 +5,7 @@ import { User } from "./User.jsx";
 import { useAuth } from "../contexts/AuthContext.jsx";
 import { updateRecipe, deleteRecipe, likeRecipe, unlikeRecipe } from "../api/recipes.js";
 
-export function Recipe({ _id, title, content, author: userId, ingredients, imageUrl, createdAt, likedBy = [] }) {
+export function Recipe({ _id, title, content, author, ingredients, imageUrl, createdAt, likedBy = [] }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(title);
   const [editContent, setEditContent] = useState(content || "");
@@ -14,6 +14,10 @@ export function Recipe({ _id, title, content, author: userId, ingredients, image
   const [token, user] = useAuth();
   const queryClient = useQueryClient();
   const [likePending, setLikePending] = useState(false);
+
+  // Handle both populated author (object) and ID-only author (string)
+  const authorId = typeof author === 'object' ? author?._id : author;
+  const authorUsername = typeof author === 'object' ? author?.username : null;
 
   // Defensive: ensure user and likedBy are defined before use
   const isLiked = user && Array.isArray(likedBy) && likedBy.includes(user.sub);
@@ -37,7 +41,7 @@ export function Recipe({ _id, title, content, author: userId, ingredients, image
   };
 
   // Check if current user is the author
-  const isAuthor = user && user.sub === userId;
+  const isAuthor = user && user.sub === authorId;
   // Debug logging (remove this later)
   // console.log('Recipe debug:', { userId, user, userSub: user?.sub, isAuthor, token: token ? 'present' : 'missing' });
 
@@ -292,9 +296,9 @@ export function Recipe({ _id, title, content, author: userId, ingredients, image
       )}
       
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '15px' }}>
-        {userId && (
+        {authorId && (
           <em style={{ color: '#666', fontSize: '0.9em' }}>
-            Recipe by <User id={userId} />
+            Recipe by {authorUsername ? <strong>{authorUsername}</strong> : <User id={authorId} />}
           </em>
         )}
         {createdAt && (
@@ -306,7 +310,7 @@ export function Recipe({ _id, title, content, author: userId, ingredients, image
       
       {/* Debug info (remove this later) */}
       <div style={{ fontSize: '10px', color: '#999', marginTop: '5px' }}>
-        Debug: Author ID: {userId}, User ID: {user?.sub}, IsAuthor: {isAuthor ? 'Yes' : 'No'}, Token: {token ? 'Present' : 'Missing'}
+        Debug: Author ID: {authorId}, User ID: {user?.sub}, IsAuthor: {isAuthor ? 'Yes' : 'No'}, Token: {token ? 'Present' : 'Missing'}
       </div>
     </article>
   );

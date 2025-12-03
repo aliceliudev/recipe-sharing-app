@@ -1,3 +1,6 @@
+import { Recipe } from "../db/models/recipe.js";
+import { User } from "../db/models/user.js";
+
 // Like a recipe
 export async function likeRecipe(userId, recipeId) {
   const recipe = await Recipe.findById(recipeId);
@@ -26,10 +29,11 @@ export async function getTopRecipes(limit = 10) {
     { $addFields: { likeCount: { $size: "$likedBy" } } },
     { $sort: { likeCount: -1, createdAt: -1 } },
     { $limit: limit },
+    { $lookup: { from: "users", localField: "author", foreignField: "_id", as: "author" } },
+    { $unwind: "$author" },
+    { $project: { "author.password": 0 } },
   ]);
 }
-import { Recipe } from "../db/models/recipe.js";
-import { User } from "../db/models/user.js";
 
 export async function createRecipe(userId, { title, contents, tags, ingredients, imageUrl }) {
   const recipe = new Recipe({ title, author: userId, content: contents, tags, ingredients, imageUrl });
@@ -40,7 +44,7 @@ async function listRecipes(
   query = {},
   { sortBy = "createdAt", sortOrder = "descending" } = {},
 ) {
-  return await Recipe.find(query).sort({ [sortBy]: sortOrder });
+  return await Recipe.find(query).sort({ [sortBy]: sortOrder }).populate("author", "username");
 }
 
 export async function listAllRecipes(options) {
@@ -58,7 +62,7 @@ export async function listRecipesByTag(tags, options) {
 }
 
 export async function getRecipeById(recipeId) {
-  return await Recipe.findById(recipeId);
+  return await Recipe.findById(recipeId).populate("author", "username");
 }
 
 export async function updateRecipe(
