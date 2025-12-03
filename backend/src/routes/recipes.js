@@ -11,6 +11,7 @@ import {
   getTopRecipes,
 } from "../services/recipes.js";
 import { requireAuth } from "../middleware/jwt.js";
+import { getIO } from "../app.js";
 
 export function recipesRoutes(app) {
   app.get("/api/v1/recipes", async (req, res) => {
@@ -49,6 +50,22 @@ export function recipesRoutes(app) {
   app.post("/api/v1/recipes", requireAuth, async (req, res) => {
     try {
       const recipe = await createRecipe(req.auth.sub, req.body);
+      
+      // Get full recipe with populated author
+      const populatedRecipe = await recipe.populate("author", "username");
+      
+      // Broadcast new recipe notification to all connected clients
+      const io = getIO();
+      if (io) {
+        io.emit("new-recipe", {
+          id: recipe._id,
+          title: recipe.title,
+          author: populatedRecipe.author?.username || "Anonymous",
+          createdAt: recipe.createdAt,
+        });
+        console.log("Broadcasted new recipe:", recipe.title, "by", populatedRecipe.author?.username);
+      }
+      
       return res.json(recipe);
     } catch (err) {
       console.error("error creating recipe", err);
